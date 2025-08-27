@@ -1,24 +1,16 @@
-import os
-import pandas as pd
-from Config.ConfigBig import Config
-
 class BigDataLoad:
     """
-    Módulo de carga: exporta DataFrames a archivos.
+    Clase para cargar los datos limpios a un destino.
     """
+    def __init__(self, df):
+        self.df = df
 
-    @staticmethod
-    def save_csv(df: pd.DataFrame, filename: str = "cleaned_pokemon.csv") -> str:
-        os.makedirs(Config.OUTPUT_PATH, exist_ok=True)
-        path = os.path.join(Config.OUTPUT_PATH, filename)
-        df.to_csv(path, index=False)
-        print(f"✅ Archivo guardado en: {path}")
-        return path
-
-    @staticmethod
-    def save_excel(df: pd.DataFrame, filename: str = "cleaned_pokemon.xlsx") -> str:
-        os.makedirs(Config.OUTPUT_PATH, exist_ok=True)
-        path = os.path.join(Config.OUTPUT_PATH, filename)
-        df.to_excel(path, index=False)
-        print(f"✅ Archivo guardado en: {path}")
-        return path
+    def to_csv(self, output_path):
+        """
+        Guarda el DataFrame limpio en un archivo CSV.
+        """
+        try:
+            self.df.to_csv(output_path, index=False)
+            print(f"Datos guardados en {output_path}")
+        except Exception as e:
+            print(f"Error al guardar datos: {e}")

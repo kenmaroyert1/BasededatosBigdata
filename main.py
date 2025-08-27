@@ -1,33 +1,27 @@
+from Config.ConfigBig import Config
 from Extract.BigDataExtract import BigDataExtract
-from Extract.Clean.Clean import DataCleaner
 from Transform.BigDataTransform import BigDataTransform
 from Load.BigDataLoad import BigDataLoad
 
 def main():
-    # 1) EXTRACT
-    extractor = BigDataExtract()  # usa Config.DATA_PATH por defecto
-    df_raw = extractor.queries()
-    print("📥 Datos extraídos. Vista previa:")
-    print(extractor.response())
+    # Extract
+    extractor = BigDataExtract(Config.INPUT_PATH)
+    df = extractor.extract()
 
-    # 2) CLEAN
-    cleaner = DataCleaner(df_raw)
-    df_clean = cleaner.universal_clean()
-    print("\n🧹 Datos limpios. Vista previa:")
-    print(df_clean.head())
+    if df is not None:
+        # Transform
+        transformer = BigDataTransform(df)
+        df_clean = transformer.clean()
 
-    # 3) TRANSFORM
-    df_trans = BigDataTransform.rename_columns(df_clean)
-    df_trans = BigDataTransform.normalize_stats(df_trans)
-    # Si quieres codificar tipos a dummies, descomenta:
-    # df_trans = BigDataTransform.one_hot_types(df_trans)
+        # Mostrar algunos resultados
+        print("Primeros registros limpios:")
+        print(df_clean.head())
+        print("\nEstadísticas generales:")
+        print(df_clean.describe())
 
-    print("\n🔧 Datos transformados. Vista previa:")
-    print(df_trans.head())
-
-    # 4) LOAD
-    BigDataLoad.save_csv(df_trans, "cleaned_pokemon.csv")
-    # BigDataLoad.save_excel(df_trans, "cleaned_pokemon.xlsx")
+        # Load
+        loader = BigDataLoad(df_clean)
+        loader.to_csv(Config.OUTPUT_PATH)
 
 if __name__ == "__main__":
     main()

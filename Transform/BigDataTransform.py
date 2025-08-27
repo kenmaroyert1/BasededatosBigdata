@@ -1,49 +1,34 @@
 import pandas as pd
-from Config.ConfigBig import Config
 
 class BigDataTransform:
     """
-    Transformaciones genéricas y específicas de Pokémon.
+    Clase para transformar y limpiar los datos extraídos.
     """
+    def __init__(self, df):
+        self.df = df
 
-    @staticmethod
-    def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
+    def clean(self):
         """
-        Renombra columnas comunes en el dataset de Pokémon para evitar espacios.
-        (Se aplica solo si existen)
+        Realiza limpieza y transformación de los datos.
         """
-        mapping = {
-            "Sp. Atk": "Sp_Atk",
-            "Sp. Def": "Sp_Def",
-            "Type 1": "Type_1",
-            "Type 2": "Type_2"
-        }
-        return df.rename(columns={k: v for k, v in mapping.items() if k in df.columns})
+        df = self.df.copy()
 
-    @staticmethod
-    def normalize_stats(df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Normaliza stats [0,1] si la opción está activa.
-        """
-        if not Config.NORMALIZE_STATS:
-            return df
+        # Eliminar duplicados
+        df = df.drop_duplicates()
 
-        stats_cols = [c for c in ["Total", "HP", "Attack", "Defense", "Sp. Atk", "Sp. Def", "Speed", "Sp_Atk", "Sp_Def"] if c in df.columns]
-        for col in stats_cols:
-            col_min = df[col].min()
-            col_max = df[col].max()
-            # Evitar división por cero
-            if pd.notna(col_min) and pd.notna(col_max) and col_max != col_min:
-                df[col] = (df[col] - col_min) / (col_max - col_min)
-        return df
+        # Rellenar valores nulos en Type 2 con 'None'
+        if "Type 2" in df.columns:
+            df["Type 2"] = df["Type 2"].fillna("None")
 
-    @staticmethod
-    def one_hot_types(df: pd.DataFrame) -> pd.DataFrame:
-        """
-        (Opcional) Codifica tipos a variables dummies si las columnas existen.
-        """
-        for type_col in ["Type 1", "Type 2", "Type_1", "Type_2"]:
-            if type_col in df.columns:
-                dummies = pd.get_dummies(df[type_col], prefix=type_col.replace(" ", "_"))
-                df = pd.concat([df.drop(columns=[type_col]), dummies], axis=1)
-        return df
+        # Asegurar que las columnas numéricas no tengan nulos
+        num_cols = ["Total", "HP", "Attack", "Defense", "Sp. Atk", "Sp. Def", "Speed"]
+        for col in num_cols:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+
+        # Convertir columna Legendary a boolean
+        if "Legendary" in df.columns:
+            df["Legendary"] = df["Legendary"].astype(bool)
+
+        self.df = df
+        return self.df
