@@ -2,31 +2,33 @@ import pandas as pd
 from Config.ConfigBig import Config
 
 class BigDataExtract:
-    def __init__(self, csv_path: str = None):
-        """
-        Inicializa la clase con la ruta del archivo CSV
-        """
-        self.csv = csv_path if csv_path else Config.DATA_PATH
+    """
+    Módulo de extracción. Lee CSV o Excel y devuelve un DataFrame.
+    """
+
+    def __init__(self, path: str | None = None):
+        self.path = path or Config.DATA_PATH
         self.data = None
 
-    def queries(self):
+    def queries(self) -> pd.DataFrame:
         """
-        Lee el archivo CSV y lo guarda en un DataFrame
+        Lee el archivo completo (CSV o XLSX).
         """
         try:
-            self.data = pd.read_csv(self.csv)
+            if self.path.lower().endswith(".csv"):
+                self.data = pd.read_csv(self.path)
+            elif self.path.lower().endswith((".xlsx", ".xls")):
+                self.data = pd.read_excel(self.path)
+            else:
+                raise ValueError("Formato no soportado. Usa .csv o .xlsx")
             return self.data
-        except FileNotFoundError:
-            print(f"Error: No se encontró el archivo {self.csv}")
         except Exception as e:
-            print(f"Error al leer el archivo: {e}")
+            raise RuntimeError(f"Error al leer '{self.path}': {e}") from e
 
     def response(self, rows: int = 5):
         """
-        Devuelve las primeras filas del DataFrame cargado
+        Vista previa de las primeras filas.
         """
-        if self.data is not None:
-            return self.data.head(rows)
-        else:
-            print("Primero ejecuta queries() para cargar los datos.")
-            return None
+        if self.data is None:
+            raise ValueError("Primero ejecuta queries() para cargar los datos.")
+        return self.data.head(rows)

@@ -113,6 +113,29 @@ Si usamos el dataset de prueba `Pokemon.csv`, el flujo hará lo siguiente:
 
 ---
 
+## 📑 About Dataset
+
+Este dataset incluye **721 Pokémon**, con su número, nombre, primer y segundo tipo, y estadísticas básicas: **HP, Attack, Defense, Special Attack, Special Defense y Speed**.
+Ha sido usado como recurso educativo para enseñar estadística, y también puede servir como introducción geek a temas de machine learning.
+
+📌 El dataset describe atributos del videojuego Pokémon (no cartas ni Pokémon Go).
+
+Los atributos son:
+
+* **#**: ID para cada Pokémon
+* **Name**: Nombre de cada Pokémon
+* **Type 1**: Tipo principal (determina debilidades y resistencias)
+* **Type 2**: Tipo secundario (si aplica)
+* **Total**: Suma de todas las estadísticas, indicador general de fuerza
+* **HP**: Puntos de vida, resistencia antes de debilitarse
+* **Attack**: Potencia base de ataques físicos
+* **Defense**: Resistencia frente a ataques físicos
+* **SP Atk**: Potencia base de ataques especiales (ej. Fire Blast, Bubble Beam)
+* **SP Def**: Resistencia frente a ataques especiales
+* **Speed**: Determina qué Pokémon ataca primero en cada turno
+
+---
+
 ## 🔮 Conclusión
 
 Este proyecto me permitió practicar la **arquitectura de un ETL real**, modularizar el código en Python y crear un sistema **universal** que pueda trabajar con cualquier dataset.
