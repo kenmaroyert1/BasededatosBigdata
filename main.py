@@ -1,37 +1,28 @@
-from BigDataExtract import BigDataExtract
-
-response1 = BigDataExtract("csv")
-response1.queries()
-print(response1.response())
-
 from Extract.BigDataExtract import BigDataExtract
-from Extract.Clean.DataCleaner import DataCleaner
+from Extract.Clean.Clean import DataCleaner
+from Transform.BigDataTransform import BigDataTransform
 from Load.BigDataLoad import BigDataLoad
 
 def main():
-    # Extraer CSV
-    extractor = BigDataExtract("Pokemon.csv")
-    df = extractor.extract()
+    # 1. Extraer
+    extractor = BigDataExtract()
+    df = extractor.queries()
+    print("📥 Datos cargados:")
+    print(extractor.response())
 
-    # Instanciar limpiador
+    # 2. Limpiar
     cleaner = DataCleaner(df)
+    df_clean = cleaner.universal_clean()
+    print("\n🧹 Datos después de limpieza:")
+    print(df_clean.head())
 
-    print("\n=== Reporte de nulos ===")
-    print(cleaner.missing_report())
+    # 3. Transformar (ejemplo: normalizar numéricos)
+    df_transformed = BigDataTransform.normalize_numeric(df_clean)
+    print("\n🔄 Datos transformados:")
+    print(df_transformed.head())
 
-    print("\n=== Duplicados encontrados ===")
-    print(cleaner.duplicates_report())
-
-    # Aplicar estrategias
-    cleaner.handle_missing(method="fill_mean")
-    cleaner.remove_duplicates()
-
-    print("\n=== Resumen final ===")
-    print(cleaner.summary())
-
-    # Guardar limpio
-    loader = BigDataLoad("Pokemon_clean.csv")
-    loader.load(cleaner.get_data())
+    # 4. Cargar
+    BigDataLoad.save_csv(df_transformed)
 
 if __name__ == "__main__":
     main()

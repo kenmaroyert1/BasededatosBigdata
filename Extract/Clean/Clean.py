@@ -1,90 +1,37 @@
 import pandas as pd
-import numpy as np
+from Config.ConfigBig import Config
 
 class DataCleaner:
-    """
-    Clase genérica para limpiar y analizar datasets (CSV o Excel).
-    """
+    def __init__(self, df: pd.DataFrame):
+        self.df = df
 
-    def __init__(self, data: pd.DataFrame):
-        self.data = data.copy()
-        self._original_shape = data.shape
+    def drop_duplicates(self):
+        if Config.DROP_DUPLICATES:
+            self.df = self.df.drop_duplicates()
+        return self
 
-    # ----------- ANÁLISIS -----------
-    def missing_report(self) -> pd.DataFrame:
+    def handle_missing(self):
+        if Config.FILL_MISSING == "mean":
+            self.df = self.df.fillna(self.df.mean(numeric_only=True))
+        elif Config.FILL_MISSING == "median":
+            self.df = self.df.fillna(self.df.median(numeric_only=True))
+        elif Config.FILL_MISSING == "mode":
+            self.df = self.df.fillna(self.df.mode().iloc[0])
+        return self
+
+    def clean_whitespace(self):
+        str_cols = self.df.select_dtypes(include="object").columns
+        for col in str_cols:
+            self.df[col] = self.df[col].str.strip()
+        return self
+
+    def universal_clean(self):
         """
-        Devuelve un reporte de los valores faltantes por columna.
+        Aplica todos los pasos de limpieza universales
         """
-        report = pd.DataFrame({
-            "Nulos": self.data.isnull().sum(),
-            "Porcentaje": (self.data.isnull().mean() * 100).round(2)
-        })
-        return report[report["Nulos"] > 0].sort_values(by="Nulos", ascending=False)
-
-    def duplicates_report(self) -> int:
-        """
-        Devuelve el número de filas duplicadas.
-        """
-        return self.data.duplicated().sum()
-
-    # ----------- ESTRATEGIAS DE LIMPIEZA -----------
-    def handle_missing(self, method: str = "drop_rows", threshold: float = 0.5):
-        """
-        Maneja los valores nulos según la estrategia seleccionada.
-
-        method:
-            - drop_rows: elimina filas con nulos
-            - drop_cols: elimina columnas con demasiados nulos
-            - fill_mean: reemplaza numéricas con media, categóricas con moda
-            - fill_const: rellena con un valor constante (ej: 0, "Desconocido")
-        """
-        if method == "drop_rows":
-            self.data.dropna(inplace=True)
-
-        elif method == "drop_cols":
-            limit = int(len(self.data) * threshold)
-            self.data.dropna(axis=1, thresh=limit, inplace=True)
-
-        elif method == "fill_mean":
-            num_cols = self.data.select_dtypes(include=[np.number]).columns
-            cat_cols = self.data.select_dtypes(exclude=[np.number]).columns
-
-            for col in num_cols:
-                self.data[col].fillna(self.data[col].mean(), inplace=True)
-
-            for col in cat_cols:
-                if not self.data[col].mode().empty:
-                    self.data[col].fillna(self.data[col].mode()[0], inplace=True)
-
-        elif method == "fill_const":
-            self.data.fillna(0, inplace=True)
-
-        return self.data
-
-    def remove_duplicates(self):
-        """
-        Elimina filas duplicadas del dataset.
-        """
-        self.data.drop_duplicates(inplace=True)
-        return self.data
-
-    # ----------- RESUMEN -----------
-    def summary(self) -> dict:
-        """
-        Resumen del proceso de limpieza.
-        """
-        current_shape = self.data.shape
-        return {
-            "Filas iniciales": self._original_shape[0],
-            "Columnas iniciales": self._original_shape[1],
-            "Filas actuales": current_shape[0],
-            "Columnas actuales": current_shape[1],
-            "Duplicados restantes": self.duplicates_report(),
-            "Nulos restantes": int(self.data.isnull().sum().sum())
-        }
-
-    def get_data(self) -> pd.DataFrame:
-        """
-        Retorna el dataset ya procesado.
-        """
-        return self.data
+        return (
+            self.drop_duplicates()
+                .handle_missing()
+                .clean_whitespace()
+                .df
+        )

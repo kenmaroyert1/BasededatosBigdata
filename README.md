@@ -1,91 +1,120 @@
-# 📊 Proyecto BaseDatosBigData
+# 📌 Proyecto ETL Universal con Python
 
-Este proyecto implementa un **pipeline ETL (Extract, Transform, Load)** en Python para trabajar con datos masivos. La arquitectura sigue un enfoque modular, separando la configuración, extracción, transformación y carga de datos en carpetas específicas.
+Este proyecto lo realicé con el objetivo de crear un **pipeline ETL (Extract, Transform, Load)** totalmente modular y universal, que pueda trabajar con cualquier archivo CSV o Excel sin importar su estructura.
 
-## 📂 Estructura del Proyecto
+La idea principal fue organizar el código en diferentes módulos que representen cada fase del proceso: **Extracción, Limpieza, Transformación y Carga**, además de un archivo de configuración que permite cambiar parámetros sin necesidad de modificar el código principal.
+
+---
+
+## 🚀 Funcionalidades principales
+
+✅ **Extract**
+
+* Permite leer cualquier archivo `.csv` o `.xlsx`.
+* Se puede configurar la ruta del archivo desde `Config/ConfigBig.py`.
+
+✅ **Clean**
+
+* Elimina duplicados en el dataset.
+* Maneja valores nulos (`mean`, `median`, `mode` o ignorar).
+* Limpia espacios innecesarios en columnas de texto.
+* Todo esto se aplica de forma **universal a cualquier dataset**.
+
+✅ **Transform**
+
+* Normaliza todas las columnas numéricas en valores entre `0 y 1`.
+* Permite renombrar columnas de manera sencilla.
+
+✅ **Load**
+
+* Guarda los datos procesados en un nuevo archivo CSV dentro de la carpeta `output/`.
+
+✅ **main.py**
+
+* Orquesta todo el proceso ETL.
+* Se ejecuta en 4 pasos: **Extract → Clean → Transform → Load**.
+
+---
+
+## 📂 Estructura del proyecto
 
 ```
-BaseDatosBigData/
-│
-├── Config/                  # Configuración general
-│   ├── __init__.py
+BASEDEDATOSBIGDATA/
+│── Config/
 │   └── ConfigBig.py
 │
-├── Extract/                 # Módulo de extracción de datos
-│   ├── __init__.py
-│   └── BigDataExtract.py
+│── Extract/
+│   ├── BigDataExtract.py
+│   └── Clean/
+│       └── Clean.py
 │
-├── Load/                    # Módulo de carga de datos
-│   ├── __init__.py
-│   └── BigDataLoad.py
-│
-├── Transform/               # Módulo de transformación de datos
-│   ├── __init__.py
+│── Transform/
 │   └── BigDataTransform.py
 │
-├── Pokemon.csv              # Dataset de ejemplo
-├── main.py                  # Script principal de ejecución del pipeline
-├── requirements.txt         # Dependencias necesarias
-└── README.md                # Documentación del proyecto
+│── Load/
+│   └── BigDataLoad.py
+│
+│── main.py
+│── Pokemon.csv        # Dataset de prueba
+│── requirements.txt
+│── README.md
 ```
 
-## 🚀 Flujo ETL
+---
 
-1. **Extract (`Extract/`)**
-   Aquí se define la lógica para **leer los datos desde distintas fuentes** (archivos CSV, bases de datos, APIs, etc.).
-   Ejemplo: en este proyecto se usa el archivo `Pokemon.csv`.
+## ⚙️ Instalación y requisitos
 
-2. **Transform (`Transform/`)**
-   Aquí se realizan las operaciones de **limpieza, validación y transformación de datos**:
+1. Clonar este repositorio o copiar la estructura.
+2. Crear un entorno virtual (opcional pero recomendado):
 
-   * Normalización de columnas.
-   * Eliminación de valores nulos o duplicados.
-   * Estandarización de tipos de datos.
-   * Aplicación de reglas de negocio.
+```bash
+python -m venv venv
+source venv/bin/activate   # Linux/Mac
+venv\Scripts\activate      # Windows
+```
 
-3. **Load (`Load/`)**
-   Finalmente, los datos procesados se **cargan en un destino** (base de datos, otro archivo CSV/Excel, o incluso almacenamiento en la nube).
+3. Instalar las dependencias:
 
-4. **Config (`Config/`)**
-   Contiene parámetros de configuración globales (rutas de archivos, credenciales, conexiones, etc.).
+```bash
+pip install -r requirements.txt
+```
 
-5. **main.py**
-   Es el **punto de entrada del pipeline**. Desde aquí se ejecuta el flujo completo: **Extract → Transform → Load**.
+📌 `requirements.txt` contiene:
 
-## ⚙️ Instalación
+```txt
+pandas
+numpy
+```
 
-1. Clona el repositorio:
+---
 
-   ```bash
-   git clone <url-del-repo>
-   cd BaseDatosBigData
-   ```
+## ▶️ Uso
 
-2. Crea un entorno virtual y activa:
-
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # En Linux/Mac
-   venv\Scripts\activate      # En Windows
-   ```
-
-3. Instala las dependencias:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## ▶️ Ejecución
-
-Ejecuta el pipeline completo desde `main.py`:
+1. Coloca tu archivo `.csv` o `.xlsx` en la carpeta principal.
+2. Ajusta la ruta en `Config/ConfigBig.py` si quieres usar otro archivo distinto a `Pokemon.csv`.
+3. Ejecuta el flujo ETL:
 
 ```bash
 python main.py
 ```
 
-## 📌 Próximos pasos
+4. El resultado se guardará automáticamente en la carpeta `output/` como `cleaned_output.csv`.
 
-* Implementar un módulo de **cleaning** dentro de `Transform/BigDataTransform.py` para limpiar datos de Excel o CSV (ejemplo: `Pokemon.csv`).
-* Agregar logs para seguimiento de errores.
-* Conectar con una base de datos real para la etapa de `Load`.
+---
+
+## 📊 Ejemplo de salida
+
+Si usamos el dataset de prueba `Pokemon.csv`, el flujo hará lo siguiente:
+
+* Cargará todos los registros.
+* Limpiará duplicados, valores faltantes y espacios.
+* Normalizará las estadísticas (`HP`, `Attack`, `Defense`, etc.) entre 0 y 1.
+* Guardará un archivo final en `output/cleaned_output.csv`.
+
+---
+
+## 🔮 Conclusión
+
+Este proyecto me permitió practicar la **arquitectura de un ETL real**, modularizar el código en Python y crear un sistema **universal** que pueda trabajar con cualquier dataset.
+En el futuro se le pueden agregar más transformaciones y hasta conexión con bases de datos para automatizar todo el proceso.
 
